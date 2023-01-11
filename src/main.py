@@ -1,18 +1,15 @@
 #!/usr/bin/python
 
 from telebot.async_telebot import AsyncTeleBot
-
-from hendlers.message import MessageHandler
+from telebot.asyncio_storage import StateMemoryStorage
+from hendlers.setup import setup_hendlers
+from states.user_information import UserInformation
 from configs import config
-
-bot = AsyncTeleBot(config.get_token())
-
-def setup_hendles():
-    hendler = MessageHandler(bot);
-    bot.message_handler(commands=['start'])(hendler.start)
-    bot.message_handler(commands=['compliment'])(hendler.send_compliment)
-    bot.message_handler(content_types=['text'])(hendler.handle_callback)
-
 import asyncio
-setup_hendles()
-asyncio.run(bot.polling())
+from telebot import asyncio_filters
+
+if __name__ == '__main__':
+    bot = AsyncTeleBot(config.get_token(), state_storage=StateMemoryStorage())
+    bot.add_custom_filter(asyncio_filters.StateFilter(bot))
+    setup_hendlers(bot)
+    asyncio.run(bot.polling())
